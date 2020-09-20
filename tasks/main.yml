@@ -15,15 +15,14 @@
     state: present
 - name: Packages
   apt:
-    name: "{{ item }}"
+    name: 
+      - containerd.io
+      - docker-ce
+      - docker-ce-cli
+      - kubelet
+      - kubeadm
+      - kubectl
     state: present
-  with_items:
-    - containerd.io
-    - docker-ce
-    - docker-ce-cli
-    - kubelet
-    - kubeadm
-    - kubectl
 
 - name: Disable swap
   command:
