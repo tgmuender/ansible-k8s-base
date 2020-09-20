@@ -1,0 +1,53 @@
+---
+- name: Docker APT repo key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg 
+- name: Docker APT repo
+  apt_repository:
+    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
+    state: present
+- name: Kubernetes APT repo key
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+- name: Kubernetes APT repo
+  apt_repository:
+    repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+    state: present
+- name: Packages
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - containerd.io
+    - docker-ce
+    - docker-ce-cli
+    - kubelet
+    - kubeadm
+    - kubectl
+
+- name: Disable swap
+  command:
+    cmd: swapoff -a
+
+- name: Disable swap via systemd
+  systemd:
+    name: swap.target
+    masked: yes
+
+- name: Systemd as cgroup driver
+  copy:
+    dest: /etc/docker/daemon.json
+    src: daemon.json
+    mode: 0644
+
+- name: Service docker running
+  service:
+    daemon_reload: yes
+    name: docker
+    state: restarted
+
+- name: Systemd daemon reload
+  systemd:
+    daemon_reload: yes
+    name: kubelet
+    state: restarted
