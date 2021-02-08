@@ -2,22 +2,26 @@
 - name: Docker APT repo key
   apt_key:
     url: https://download.docker.com/linux/ubuntu/gpg 
+
 - name: Docker APT repo
   apt_repository:
     repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
     state: present
+
 - name: Kubernetes APT repo key
   apt_key:
     url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+
 - name: Kubernetes APT repo
   apt_repository:
     repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
     state: present
+
 - name: Packages
   apt:
     name: 
       - containerd.io
-      - docker-ce
+      - docker-ce=5:19.03*
       - docker-ce-cli
       - kubelet
       - kubeadm
