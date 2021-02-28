@@ -1,13 +1,4 @@
 ---
-- name: Docker APT repo key
-  apt_key:
-    url: https://download.docker.com/linux/ubuntu/gpg 
-
-- name: Docker APT repo
-  apt_repository:
-    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
-    state: present
-
 - name: Kubernetes APT repo key
   apt_key:
     url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
@@ -21,12 +12,14 @@
   apt:
     name: 
       - containerd.io
-      - docker-ce=5:19.03*
-      - docker-ce-cli
-      - kubelet
-      - kubeadm
-      - kubectl
+      - kubelet=1.20.4-00
+      - kubeadm=1.20.4-00
+      - kubectl=1.20.4-00
     state: present
+
+- name: Kernel modules
+  command:
+    cmd: modprobe br_netfilter
 
 - name: Disable swap
   command:
@@ -39,15 +32,19 @@
 
 - name: Systemd as cgroup driver
   copy:
-    dest: /etc/docker/daemon.json
-    src: daemon.json
+    dest: /etc/sysctl.d/99-kubernetes-cri.conf
+    src: 99-kubernetes-cri.conf
     mode: 0644
+    owner: root
+    group: root
 
-- name: Service docker running
-  service:
-    daemon_reload: yes
-    name: docker
-    state: restarted
+- name: containerd config
+  copy:
+    dest: /etc/containerd/config.toml
+    src: containerd-config.toml
+    mode: 0644
+    owner: root
+    group: root
 
 - name: Systemd daemon reload
   systemd:
